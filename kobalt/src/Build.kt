@@ -63,6 +63,7 @@ val p = project {
     autoGitTag {
         enabled = true
         message = "Version $version"
+        annotated = true
     }
 
     bintray {

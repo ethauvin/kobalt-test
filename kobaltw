@@ -1,2 +1,3 @@
 #!/usr/bin/env sh
-java -jar "`dirname "$0"`/kobalt/wrapper/kobalt-wrapper.jar" $*
+JAR=$(ls -1 /k/GitHub/kobalt/kobaltBuild/libs/*.jar | grep -v javadoc | grep -v sources)
+java -jar $JAR $*
