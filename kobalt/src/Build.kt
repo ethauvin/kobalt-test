@@ -67,6 +67,6 @@ val p = project {
     }
 
     bintray {
-        publish = true
+        publish = false
     }
 }
