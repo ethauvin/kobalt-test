@@ -1,4 +1,5 @@
 import com.beust.kobalt.*
+import com.beust.kobalt.plugin.apt.*
 import com.beust.kobalt.plugin.packaging.*
 import com.beust.kobalt.plugin.publish.*
 import com.beust.kobalt.plugin.application.*
@@ -8,6 +9,8 @@ import org.apache.maven.model.*
 val bs = buildScript {
     repos()
 }
+
+val processorJar = file("K:\\java\\semver\\deploy\\semver-0.9.7.jar")
 
 
 val p = project {
@@ -43,17 +46,23 @@ val p = project {
     }
 
     dependencies {
-//        compile("com.beust:jcommander:1.48")
+       apt(processorJar)
+       compile("org.apache.velocity:velocity:1.7", processorJar)
     }
 
     dependenciesTest {
-        compile("org.testng:testng:6.10")
+        compile("org.testng:testng:6.11")
 
     }
 
     assemble {
         jar {
         }
+    }
+
+    install {
+        libDir = "deploy"
+        println(collect(compileDependencies))
     }
 
     application {
