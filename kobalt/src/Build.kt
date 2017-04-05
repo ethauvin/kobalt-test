@@ -62,7 +62,7 @@ val p = project {
 
     install {
         libDir = "deploy"
-        println(collect(compileDependencies))
+        collect(compileDependencies).map { include(it) }
     }
 
     application {
