@@ -62,7 +62,9 @@ val p = project {
 
     install {
         libDir = "deploy"
-        collect(compileDependencies).map { include(it) }
+        collect(compileDependencies).forEach {
+            copy(it.absolutePath, to("${libDir}/lib"))
+        }
     }
 
     application {
