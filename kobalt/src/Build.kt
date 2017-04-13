@@ -1,17 +1,20 @@
 import com.beust.kobalt.*
-import com.beust.kobalt.plugin.apt.*
-import com.beust.kobalt.plugin.packaging.*
-import com.beust.kobalt.plugin.publish.*
-import com.beust.kobalt.plugin.application.*
-import com.beust.kobalt.plugin.java.*
+import com.beust.kobalt.plugin.application.application
+import com.beust.kobalt.plugin.apt.apt
+import com.beust.kobalt.plugin.packaging.assemble
+import com.beust.kobalt.plugin.packaging.install
+import com.beust.kobalt.plugin.publish.autoGitTag
+import com.beust.kobalt.plugin.publish.bintray
 import org.apache.maven.model.*
 
 val bs = buildScript {
     repos()
 }
 
-val processorJar = file("K:\\java\\semver\\deploy\\semver-0.9.7.jar")
+val processorJar = "net.thauvin.erik:semver:0.9.6-beta"
 
+val mainClassName = "com.example.Main"
+val lib = "lib"
 
 val p = project {
 
@@ -37,17 +40,10 @@ val p = project {
         })
     }
 
-    sourceDirectories {
-        path("src/main/java")
-    }
-
-    sourceDirectoriesTest {
-        path("src/test/java")
-    }
-
     dependencies {
-       apt(processorJar)
-       compile("org.apache.velocity:velocity:1.7", processorJar)
+        apt(processorJar)
+        compile("org.twitter4j:twitter4j-core:4.0.6")
+        compileOnly(processorJar)
     }
 
     dependenciesTest {
@@ -57,18 +53,34 @@ val p = project {
 
     assemble {
         jar {
-        }
-    }
-
-    install {
-        libDir = "deploy"
-        collect(compileDependencies).forEach {
-            copy(it.absolutePath, to("${libDir}/lib"))
+            manifest {
+                attributes("Main-Class", mainClassName)
+                attributes("Class-Path",
+                        collect(compileDependencies)
+                                .map { it.file.name }
+                                .joinToString(" ./$lib/", prefix = ". ./$lib/"))
+            }
         }
     }
 
     application {
         mainClass = "com.example.Main"
+    }
+
+    install {
+        target = "deploy"
+        include(from("kobaltBuild/libs"), to(target), glob("**/*"))
+        collect(compileDependencies).forEach {
+            copy(from(it.file.absolutePath), to("$target/$lib"))
+        }
+    }
+
+    apt {
+        outputDir = "src/generated/java/"
+    }
+
+    application {
+        mainClass = mainClassName
     }
 
     autoGitTag {
